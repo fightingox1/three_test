@@ -43,7 +43,7 @@
   </style>
 </head>
 <body id="body">
-  <div class="control_head" id="control_head">press 1 to lock cursor</div>
+  <div class="control_head" id="control_head">press 1 to lock/unlock cursor</div>
   <div class="center" id="menu">
     <button class="button" id="start_btn">Start</button>
   </div>
@@ -68,6 +68,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 var keyW, keyA, keyS, keyD
+var lock = false;
 
 var ambient_light = new THREE.AmbientLight( 0x404040 );
 scene.add(ambient_light)
@@ -161,7 +162,16 @@ window.addEventListener("keydown", function(event) {
     //jump code here
   }
 
-  if (event.key == "1"){controls.lock();}
+  if (event.key == "1"){
+	  if (!lock){
+	  controls.lock();
+	  lock = true;
+	  }
+	  else{
+	  controls.unlock();
+ 	  lock = false;
+	  }
+  }
 
   if (event.key == "w") {keyW = true}
   if (event.key == "a") {keyA = true}

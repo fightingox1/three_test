@@ -8,15 +8,56 @@
     padding: 0px;
     overflow: hidden; 
 }
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15%;
+  height: 15%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+.button {
+  background-color: #0a5a9c;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-size: 40px;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+.control_head {
+  background-color: rgba(0, 0, 0, 0);
+  font-size: xx-large;
+  font-family: Trebuchet MS, sans-serif;
+  color: rgb(88, 88, 88);
+  left: 5px;
+  top: 5px;
+  position: absolute;
+  display: none;
+}
   </style>
 </head>
-<body>
+<body id="body">
+  <div class="control_head" id="control_head">press 1 to lock cursor</div>
+  <div class="center" id="menu">
+    <button class="button" id="start_btn">Start</button>
+  </div>
 <script type="module">
 
 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.131.3-QQa34rwf1xM5cawaQLl8/mode=imports/optimized/three.js';
 import { PointerLockControls } from "https://threejs.org/examples/jsm/controls/PointerLockControls.js";
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
+var menu = document.getElementById("menu");
+var body = document.getElementById("body")
+var start_button = document.getElementById("start_btn")
+var control_head = document.getElementById("control_head")
+var game_loop = false;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75,(window.innerWidth/window.innerHeight),0.1,1000);
 camera.position.z = 5;
@@ -114,18 +155,40 @@ skybox = new THREE.Mesh(skyboxGeo, materialArray);
 scene.add(skybox);
 
 window.addEventListener("keydown", function(event) {
-	if (event.key == " "){controls.lock();}
+  console.log(event.key)
+  if(game_loop == true){
+	if (event.key == " "){
+    //jump code here
+  }
+
+  if (event.key == "1"){controls.lock();}
 
   if (event.key == "w") {keyW = true}
   if (event.key == "a") {keyA = true}
   if (event.key == "s") {keyS = true}
   if (event.key == "d") {keyD = true}
+  }
 });
 window.addEventListener("keyup", function(event) {
   if (event.key == "w") {keyW = false}
   if (event.key == "a") {keyA = false}
   if (event.key == "s") {keyS = false}
   if (event.key == "d") {keyD = false}
+});
+
+start_button.addEventListener("click", function(){
+  game_loop = true
+  menu.style.display = 'none';
+  control_head.style.display = 'inline';
+  body.requestFullscreen();
+});
+
+document.addEventListener('fullscreenchange', (event) => {
+  if(!document.fullscreenElement){
+    game_loop = false
+    menu.style.display = 'inline';
+    control_head.style.display = 'none';
+  }
 });
 
 setInterval(() => {

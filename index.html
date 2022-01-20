@@ -1,0 +1,171 @@
+<html>
+<head>
+  <style>
+    html,body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden; 
+}
+  </style>
+</head>
+<body>
+<script type="module">
+
+import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.131.3-QQa34rwf1xM5cawaQLl8/mode=imports/optimized/three.js';
+import { PointerLockControls } from "https://threejs.org/examples/jsm/controls/PointerLockControls.js";
+import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75,(window.innerWidth/window.innerHeight),0.1,1000);
+camera.position.z = 5;
+const controls = new PointerLockControls( camera, document.body );
+camera.position.y = 2.5;
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+var keyW, keyA, keyS, keyD
+
+var ambient_light = new THREE.AmbientLight( 0x404040 );
+scene.add(ambient_light)
+
+
+new GLTFLoader().load('https://fightingox1.github.io/image_library/City_1.gltf', result => { 
+  var model = result.scene
+  model.scale.set(0.5,1,0.5)
+  model.position.y = -0.45
+  model.position.x = 25
+
+  model.traverse(n => { if ( n.isMesh ) {
+  n.castShadow = false; 
+  n.receiveShadow = true;
+  n.material.color.setHex(0x787878);
+  if(n.material.map) n.material.map.anisotropy = 16; 
+}});
+  scene.add(model);
+  animate();
+});
+
+
+var light_position_x = -25
+for (let i = 0; i < 15; i++) {
+var light = new THREE.SpotLight(0xffa95c,4);
+light.position.set(light_position_x,2,0);
+
+light.castShadow = true; 
+light.shadow.bias = -0.0001;
+light.shadow.mapSize.width = 1024*4;
+light.shadow.mapSize.height = 1024*4;
+light.intensity = .1
+light.power = .7
+
+
+
+scene.add( light );
+light_position_x = light_position_x + 25;
+}
+
+const geometry = new THREE.BoxGeometry( 1, 5, 1 );
+const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+const cube = new THREE.Mesh( geometry, material );
+cube.position.x = 25
+scene.add( cube );
+
+light_position_x = -250
+for (let i = 0; i < 2; i++) {
+var light2 = new THREE.DirectionalLight(0xffa95c,4);
+light2.position.set(light_position_x,500,1000);
+
+light2.castShadow = false; 
+light2.shadow.bias = -0.0001;
+light2.shadow.mapSize.width = 1024*4;
+light2.shadow.mapSize.height = 1024*4;
+light2.decay = 2
+light.power = 0
+light.intensity = 0
+
+light2.target = cube;
+
+scene.add( light2 );
+light_position_x = light_position_x + 500;
+
+var light3 = new THREE.DirectionalLight(0xffa95c,4);
+light3.position.set(-(light_position_x),10000,1000);
+
+light3.castShadow = true; 
+light3.shadow.bias = -0.0001;
+light3.shadow.mapSize.width = 1024*4;
+light3.shadow.mapSize.height = 1024*4;
+light3.decay = 2
+light.power = 2
+light.intensity = 2
+
+light2.target = cube;
+
+scene.add( light2 );
+}
+
+var skyboxGeo,skybox;
+const materialArray = createMaterialArray();
+skyboxGeo = new THREE.BoxGeometry(1000, 1000, 1000);
+skybox = new THREE.Mesh(skyboxGeo, materialArray);
+scene.add(skybox);
+
+window.addEventListener("keydown", function(event) {
+	if (event.key == " "){controls.lock();}
+
+  if (event.key == "w") {keyW = true}
+  if (event.key == "a") {keyA = true}
+  if (event.key == "s") {keyS = true}
+  if (event.key == "d") {keyD = true}
+});
+window.addEventListener("keyup", function(event) {
+  if (event.key == "w") {keyW = false}
+  if (event.key == "a") {keyA = false}
+  if (event.key == "s") {keyS = false}
+  if (event.key == "d") {keyD = false}
+});
+
+setInterval(() => {
+  if(keyW){controls.moveForward(0.1);}
+  if(keyA){controls.moveRight(-0.1);}
+  if(keyS){controls.moveForward(-0.1);}
+  if(keyD){controls.moveRight(0.1);}
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}, 15);
+
+function animate() {
+  renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+}
+
+function createPathStrings() {
+  const basePath = "https://fightingox1.github.io/image_library/skybox/";
+  const fileType = ".png";
+  const sides = ["front_img", "back_img", "up_img", "down_img", "right_img", "left_img"];
+  const pathStings = sides.map(side => {
+    return basePath + side + fileType;
+  });
+  return pathStings;
+}
+
+function createMaterialArray() {
+  const skyboxImagepaths = createPathStrings();
+  const materialArray = skyboxImagepaths.map(image => {
+    let texture = new THREE.TextureLoader().load(image);
+
+    return new THREE.MeshBasicMaterial({
+      map: texture,
+      side: THREE.BackSide
+    }); // <---
+  });
+  return materialArray;
+}
+
+animate();
+</script>
+</body>
+</html>
